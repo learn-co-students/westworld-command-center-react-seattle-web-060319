@@ -1,18 +1,51 @@
 import React, { Component } from 'react';
 import './stylesheets/App.css'
 import { Segment } from 'semantic-ui-react';
-
+import Headquarters from './components/Headquarters'
+import WestworldMap from './components/WestworldMap'
+const hostAPI = 'http://localhost:3000/hosts'
+const areaAPI = 'http://localhost:3000/areas'
 
 class App extends Component {
 
-  // As you go through the components given you'll see a lot of functional components.
-  // But feel free to change them to whatever you want.
-  // It's up to you whether they should be stateful or not.
+  constructor() {
+    super()
+    this.state = {
+      hosts: [],
+      areas: [],
+    }
+  }
 
-  render(){
+  componentDidMount() {
+    fetch(hostAPI)
+      .then(res => res.json())
+      .then(hosts => this.setState({ hosts }))
+    fetch(areaAPI)
+      .then(res => res.json())
+      .then(areas => this.setState({ areas }))
+  }
+
+  handleActivate = selectedHost => {
+    console.log('inside activate! activate host pls')
+    selectedHost.active = !selectedHost.active
+    this.setState(prevState => {
+      let updatedHosts = prevState.hosts.map(host => {
+        if (host.id === selectedHost.id) {
+          return selectedHost
+        } else {
+          return host
+        }
+      })
+      return { selectedHost: selectedHost, hosts: updatedHosts }
+    })
+  }
+
+
+  render() {
     return (
       <Segment id='app'>
-        {/* What components should go here? Check out Checkpoint 1 of the Readme if you're confused */}
+        <WestworldMap areas={this.state.areas} />
+        <Headquarters hosts={this.state.hosts} handleActivate={this.handleActivate} areas={this.state.areas} />
       </Segment>
     )
   }
